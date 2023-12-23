@@ -12,6 +12,9 @@ numpy = "^1.26.2"
 torch = {version = "^2.1.2+cu121", source = "pytorch"}
 hydra-core = "^1.3.2"
 dvc = "^3.36.1"
+nltk = "^3.8.1"
+pymystem3 = "^0.2.0"
+lightning = "^2.1.3"
 
 [[tool.poetry.source]]
 name = "pytorch"
