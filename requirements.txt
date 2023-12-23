@@ -1,0 +1,5 @@
+pandas
+numpy
+torch=2.1.2+cu121
+hydra-core
+dvc

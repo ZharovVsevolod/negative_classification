@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "negative-classification"
+version = "0.1.0"
+description = ""
+authors = ["Vsevolod <wsewolod@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.1.4"
+numpy = "^1.26.2"
+torch = {version = "^2.1.2+cu121", source = "pytorch"}
+hydra-core = "^1.3.2"
+dvc = "^3.36.1"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
