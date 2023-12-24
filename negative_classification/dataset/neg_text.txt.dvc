@@ -1,0 +1,5 @@
+outs:
+- md5: 76147eb7f87e57d3f54a73d6a88c06b1
+  size: 868884
+  hash: md5
+  path: neg_text.txt
