@@ -1,0 +1,23 @@
+dataset:
+  path_to_data: ./negative_classification/dataset/ds_nlp.xlsx
+  vocab_size: 300
+  path_to_bpe_dir: ./negative_classification/models
+  chunk_lenght: 60
+  pad_value: 0
+  need_to_train_bpe: False
+  test_size_split: 0.1
+
+training:
+  batch: 256
+  lr: 3e-4
+  epochs: 500
+
+model:
+  embedding_dim: 256
+  layers: 8
+  heads: 4
+  mlp_dim: 512
+  qkv_bias: False
+  dropout: 0.1
+  norm_type: postnorm
+  num_output_classes: 8
