@@ -27,8 +27,7 @@ def load_dataset(filename: str) -> (np.array, np.array):
     x, y = df["text"].to_numpy(dtype=str), df["class"].to_numpy(dtype=str)
     return x, y
 
-def text_lemmatize(text, stopwrd = stopwords.words("russian")):
-    mystem = Mystem()
+def text_lemmatize(text, mystem, stopwrd = stopwords.words("russian")):
     lemma_texts = [mystem.lemmatize(phrase) for phrase in text]
     answer = []
     for phrase in lemma_texts:
@@ -111,7 +110,8 @@ class NegClassification_DataModule(L.LightningDataModule):
         file.close()
         
         # Лемматизация
-        lemma_texts = text_lemmatize(text)
+        mystem = Mystem()
+        lemma_texts = text_lemmatize(text, mystem)
         self.filename_lemma = self.output_dir + "/neg_text.txt"
         for_txt_file(lemma_texts, self.filename_lemma)
 

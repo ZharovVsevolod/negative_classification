@@ -54,20 +54,14 @@ def main(cfg: Params) -> None:
         lr=cfg.training.lr,
         qkv_bias=cfg.model.qkv_bias,
         drop_rate=cfg.model.dropout,
-        #-----
         type_of_scheduler = "ReduceOnPlateau", 
         patience_reduce = 20, 
         factor_reduce = 0.1,
-        # -----
-        # type_of_scheduler = "OneCycleLR",
-        # lr_coef_cycle = 1, 
-        # total_num_of_epochs = cfg.training.epochs,
-        #-----
         previous_model=None
     )
 
     wandb.login(key="dec2ee769ce2e455dd463be9b11767cf8190d658")
-    wandb_log = WandbLogger(project="NLP_Neg", name="v300-ch60-l8-h4-emb256-mlp512-d0.1-lr3e-4", save_dir=working_dir + "/wandb")
+    wandb_log = WandbLogger(project="NLP_Neg", name="v400-ch50-l8-h4-emb256-mlp512-d0.1-lr3e-4", save_dir=working_dir + "/wandb")
 
     checkpoint = ModelCheckpoint(
         dirpath=working_dir + "/weights",

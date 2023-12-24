@@ -10,6 +10,80 @@ from torchmetrics.classification import MulticlassAccuracy, ConfusionMatrix, Mul
 import matplotlib.pyplot as plt
 import itertools
 import numpy as np
+import pandas as pd
+import onnxruntime as ort
+import youtokentome as yttm
+from data import text_lemmatize
+from pymystem3 import Mystem
+import re
+
+KNOWN_CLASSES = [
+    'Вежливость сотрудников магазина',
+    'Время ожидания у кассы',
+    'Доступность персонала в магазине',
+    'Компетентность продавцов/ консультантов',
+    'Консультация КЦ',
+    'Обслуживание на кассе',
+    'Обслуживание продавцами/ консультантами',
+    'Электронная очередь'
+]
+
+def get_result(text: pd.Series) -> pd.Series:
+    # Модель в формате onnx
+    save_onnx = "negative_classification/models/self_model.onnx"
+    ort_session = ort.InferenceSession(save_onnx)
+    answers = []
+
+    # Предобработка
+    np_text = text.to_numpy()
+    # print(np_text)
+
+    ## Лемматизатор
+    mystem = Mystem()
+    lemma_text = text_lemmatize(np_text, mystem)
+
+    ## Токенизатор
+    tokenizer = yttm.BPE("negative_classification/models/bpe_300.yttm")
+
+    for phrase in lemma_text:
+        phrase_in_tokens = text_preprocessing(phrase, tokenizer)
+        phrase_in_tokens = einops.rearrange(phrase_in_tokens, "chunk -> 1 chunk")
+        asnwer_class = get_answer_from_model(
+            input_sample=phrase_in_tokens,
+            ort_session=ort_session
+        )
+        answers.append(asnwer_class)
+
+    return pd.Series(answers, name="class_predicted")
+
+def text_preprocessing(text: np.array, tokenizer):
+    # Очистка
+    text = " ".join(text)
+    text = re.findall("[а-яА-Я ]+", text)
+    text = " ".join(text)
+
+    # Токенизация
+    text_tokens = tokenizer.encode(text, bos=True, eos=True)
+    text_tokens = ensure_lenght(text_tokens)
+    return np.array(text_tokens)
+
+def ensure_lenght(txt, chunk_lenght=60, pad_value=0):
+        if len(txt) < chunk_lenght:
+            txt = list(txt) + [pad_value]*(chunk_lenght - len(txt))
+        else:
+            txt = txt[:chunk_lenght]
+        return txt
+
+def get_answer_from_model(input_sample, ort_session: ort.InferenceSession) -> str:
+    input_name = ort_session.get_inputs()[0].name
+    ort_inputs = {input_name: input_sample}
+
+    ort_outs = ort_session.run(None, ort_inputs)
+
+    tensor_outputs = torch.from_numpy(np.array(ort_outs)).squeeze()[-1, :]
+    answer_class = torch.argmax(tensor_outputs)
+    return KNOWN_CLASSES[answer_class]
+
 
 class Class_Positions_Embeddings(nn.Module):
     def __init__(self, embed_dim, vocab_size, pad_value, chunk) -> None:
@@ -204,7 +278,8 @@ class SpecificBERT_Lightning(L.LightningModule):
             norm_type:str,
             lr:float,
             qkv_bias=False, drop_rate=0.0,
-            type_of_scheduler:str = "ReduceOnPlateau", patience_reduce:int = 5, factor_reduce:float=0.1, lr_coef_cycle:int = 2, total_num_of_epochs:int = 20,
+            type_of_scheduler:str = "ReduceOnPlateau", patience_reduce:int = 5, factor_reduce:float=0.1, 
+            # lr_coef_cycle:int = 2, total_num_of_epochs:int = 20,
             previous_model = None
         ) -> None:
         super().__init__()
@@ -227,8 +302,8 @@ class SpecificBERT_Lightning(L.LightningModule):
         self.type_of_scheduler = type_of_scheduler
         self.patience_reduce = patience_reduce
         self.factor_reduce = factor_reduce
-        self.lr_coef_cycle = lr_coef_cycle
-        self.total_num_of_epochs = total_num_of_epochs
+        # self.lr_coef_cycle = lr_coef_cycle
+        # self.total_num_of_epochs = total_num_of_epochs
         
 
         self.save_hyperparameters()
@@ -243,9 +318,9 @@ class SpecificBERT_Lightning(L.LightningModule):
         if self.type_of_scheduler == "ReduceOnPlateau":
             sched = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=self.patience_reduce, factor=self.factor_reduce)
             scheduler_out = {"scheduler": sched, "monitor": "val_loss"}
-        if self.type_of_scheduler == "OneCycleLR":
-            sched = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=self.lr * self.lr_coef_cycle, total_steps=self.total_num_of_epochs)
-            scheduler_out = {"scheduler": sched}
+        # if self.type_of_scheduler == "OneCycleLR":
+        #     sched = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=self.lr * self.lr_coef_cycle, total_steps=self.total_num_of_epochs)
+        #     scheduler_out = {"scheduler": sched}
         
         return scheduler_out
     

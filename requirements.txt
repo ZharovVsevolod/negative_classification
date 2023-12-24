@@ -15,3 +15,5 @@ matplotlib
 scikit-learn
 wandb
 einops
+onnx
+onnxruntime
