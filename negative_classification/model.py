@@ -63,7 +63,7 @@ def text_preprocessing(text: np.array, tokenizer):
     # Токенизация
     text_tokens = tokenizer.encode(text, bos=True, eos=True)
     text_tokens = ensure_lenght(text_tokens)
-    return np.array(text_tokens)
+    return np.array(text_tokens, dtype=np.int64)
 
 def ensure_lenght(txt, chunk_lenght=60, pad_value=0):
         if len(txt) < chunk_lenght:
