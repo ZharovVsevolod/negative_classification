@@ -11,5 +11,4 @@ WORKDIR /usr/app/src
 COPY . .
 RUN python3 -m pip install -r requirements.txt
 
-# CMD python3 -m negative_classification/train
-CMD [ "python", "negative_classification/train.py" ]
+# CMD ["python3", "-m" "/usr/app/src/negative_classification/train"]

@@ -1,5 +1,3 @@
-from typing import Any
-import lightning.pytorch as pl
 from lightning.pytorch.utilities.types import STEP_OUTPUT, OptimizerLRScheduler
 import torch
 from torch import nn
@@ -13,7 +11,7 @@ import numpy as np
 import pandas as pd
 import onnxruntime as ort
 import youtokentome as yttm
-from data import text_lemmatize
+from negative_classification.data import text_lemmatize
 from pymystem3 import Mystem
 import re
 

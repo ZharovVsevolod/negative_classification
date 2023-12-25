@@ -1,7 +1,6 @@
 from negative_classification.model import SpecificBERT_Lightning, ConfMatrixLogging
 from negative_classification.data import NegClassification_DataModule
 
-import torch
 import lightning as L
 from lightning.pytorch.loggers import WandbLogger
 import wandb
@@ -9,7 +8,7 @@ from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor, Ea
 
 import hydra
 from hydra.core.config_store import ConfigStore
-from config import Params
+from negative_classification.config import Params
 
 cs = ConfigStore.instance()
 cs.store(name="params", node=Params)
