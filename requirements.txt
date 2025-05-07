@@ -5,7 +5,7 @@ youtokentome
 hydra-core
 dvc
 --find-links https://download.pytorch.org/whl/torch_stable.html
-torch==2.1.2+cu121
+torch==2.2.1+cu121
 nltk
 pymystem3
 lightning
